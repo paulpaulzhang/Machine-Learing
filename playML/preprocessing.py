@@ -28,3 +28,4 @@ class StandardScaler:
             "the feature number of X must be equal to mean_ and std_"
 
         return (X - self.mean_) / self.scale_
+

@@ -2,6 +2,7 @@
   <dictionary name="zlm31">
     <words>
       <w>coef</w>
+      <w>iters</w>
       <w>rmse</w>
     </words>
   </dictionary>
