@@ -41,13 +41,13 @@ class LinearRegression:
 
         def dJ(X_b, y, theta):
             """计算梯度值"""
-            res = np.empty(len(theta))
+            # res = np.empty(len(theta))
+            #
+            # res[0] = np.sum(X_b.dot(theta) - y)
+            # for i in range(1, len(theta)):
+            #     res[i] = (X_b.dot(theta) - y).dot(X_b[:, i])
 
-            res[0] = np.sum(X_b.dot(theta) - y)
-            for i in range(1, len(theta)):
-                res[i] = (X_b.dot(theta) - y).dot(X_b[:, i])
-
-            return res * 2 / len(X_b)
+            return X_b.T.dot((X_b.dot(theta) - y)) * 2 / len(y)
 
         def gradient_descent(X_b, y, initial_theta, eta, n_iters, epsilon=1e-8):
             """梯度下降法"""
