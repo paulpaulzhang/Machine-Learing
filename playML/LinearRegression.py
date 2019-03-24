@@ -41,11 +41,6 @@ class LinearRegression:
 
         def dJ(X_b, y, theta):
             """计算梯度值"""
-            # res = np.empty(len(theta))
-            #
-            # res[0] = np.sum(X_b.dot(theta) - y)
-            # for i in range(1, len(theta)):
-            #     res[i] = (X_b.dot(theta) - y).dot(X_b[:, i])
 
             return X_b.T.dot((X_b.dot(theta) - y)) * 2 / len(y)
 
@@ -71,6 +66,38 @@ class LinearRegression:
 
         self.coef_ = self._theta[1:]
         self.interception_ = self._theta[0]
+
+        return self
+
+    def fit_sgd(self, X_train, y_train, n_iters=5):
+        assert X_train.shape[0] == y_train.shape[0], \
+            "the size of X_train must be equal to the size of y_train"
+        assert n_iters >= 1, "n_iters must more than 1"
+
+        def learning_rate(t, t1=5, t0=50):
+            return t1 / (t + t0)
+
+        def dJ_sgd(X_b_i, y_i, theta):
+            return X_b_i.T.dot((X_b_i.dot(theta) - y_i)) * 2
+
+        def sgd(X_b, y, initial_theta, n_iters=5, t0=5, t1=50):
+            theta = initial_theta
+            m = len(X_b)
+            for cur_iters in range(n_iters):
+                indexes = np.random.permutation(m)
+                X_b = X_b[indexes]
+                y = y[indexes]
+                for i in range(len(X_b)):
+                    theta = theta - learning_rate(cur_iters * m + i) * dJ_sgd(X_b[i], y[i], theta)
+
+            return theta
+
+        X_b = np.hstack([np.ones((len(X_train), 1)), X_train])
+        initial_theta = np.zeros(X_b.shape[1])
+        self._theta = sgd(X_b, y_train, initial_theta, n_iters)
+
+        self.interception_ = self._theta[0]
+        self.coef_ = self._theta[1:]
 
         return self
 
