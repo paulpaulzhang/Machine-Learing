@@ -69,18 +69,20 @@ class LinearRegression:
 
         return self
 
-    def fit_sgd(self, X_train, y_train, n_iters=5):
+    def fit_sgd(self, X_train, y_train, n_iters=5, t1=5, t0=50):
+        """随机梯度下降法"""
         assert X_train.shape[0] == y_train.shape[0], \
             "the size of X_train must be equal to the size of y_train"
         assert n_iters >= 1, "n_iters must more than 1"
 
-        def learning_rate(t, t1=5, t0=50):
-            return t1 / (t + t0)
-
         def dJ_sgd(X_b_i, y_i, theta):
             return X_b_i.T.dot((X_b_i.dot(theta) - y_i)) * 2
 
-        def sgd(X_b, y, initial_theta, n_iters=5, t0=5, t1=50):
+        def sgd(X_b, y, initial_theta, n_iters=5, t1=5, t0=50):
+
+            def learning_rate(t):
+                return t1 / (t + t0)
+
             theta = initial_theta
             m = len(X_b)
             for cur_iters in range(n_iters):
@@ -94,7 +96,48 @@ class LinearRegression:
 
         X_b = np.hstack([np.ones((len(X_train), 1)), X_train])
         initial_theta = np.zeros(X_b.shape[1])
-        self._theta = sgd(X_b, y_train, initial_theta, n_iters)
+        self._theta = sgd(X_b, y_train, initial_theta, n_iters, t1, t0)
+
+        self.interception_ = self._theta[0]
+        self.coef_ = self._theta[1:]
+
+        return self
+
+    def fit_small_gd(self, X_train, y_train, n_iters=5, k=5, t1=5, t0=50):
+        """小批量梯度下降法"""
+        assert X_train.shape[0] == y_train.shape[0], \
+            "the size of X_train must be equal to the size of y_train"
+        assert n_iters >= 1, "n_iters must more than 1"
+        assert 1 <= k <= len(X_train)
+
+        def dJ(X_b_k, y_k, theta, k=5):
+            return X_b_k.T.dot(X_b_k.dot(theta) - y_k) * 2 / k
+
+        def small_gd(X_b, y, initial_theta, n_iters=5, k=5, t1=5, t0=50):
+
+            def learning_rate(t):
+                return t1 / (t + t0)
+
+            theta = initial_theta
+            m = len(X_b)
+            for cur_iters in range(n_iters):
+                indexes = np.random.permutation(m)
+                X_b_shuffle = X_b[indexes]
+                y_shuffle = y[indexes]
+
+                for i in range(0, m, k):
+                    if i + k < m:
+                        theta = theta - learning_rate(cur_iters * m + i) * \
+                                dJ(X_b_shuffle[i: i + k], y_shuffle[i:i + k], theta)
+                    else:
+                        theta = theta - learning_rate(cur_iters * m + i) * \
+                                dJ(X_b_shuffle[i:], y_shuffle[i:], theta)
+            return theta
+
+        X_b = np.hstack([np.ones((len(X_train), 1)), X_train])
+        initial_theta = np.zeros(X_b.shape[1])
+
+        self._theta = small_gd(X_b, y_train, initial_theta, n_iters, k, t1, t0)
 
         self.interception_ = self._theta[0]
         self.coef_ = self._theta[1:]
