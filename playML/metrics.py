@@ -42,3 +42,45 @@ def r2_score(y_true, y_predict):
         "the size of y_true must be equal to the size of y_predict"
 
     return 1 - mean_squared_error(y_true, y_predict) / np.var(y_true)
+
+
+def TN(y_true, y_predict):
+    assert len(y_true) == len(y_predict)
+    return np.sum((y_true == 0) & (y_predict == 0))
+
+
+def FP(y_true, y_predict):
+    assert len(y_true) == len(y_predict)
+    return np.sum((y_true == 0) & (y_predict == 1))
+
+
+def FN(y_true, y_predict):
+    assert len(y_true) == len(y_predict)
+    return np.sum((y_true == 1) & (y_predict == 0))
+
+
+def TP(y_true, y_predict):
+    assert len(y_true) == len(y_predict)
+    return np.sum((y_true == 1) & (y_predict == 1))
+
+
+def confusion_matrix(y_true, y_predict):
+    """混淆矩阵"""
+    return np.array([
+        [TN(y_true, y_predict), FP(y_true, y_predict)],
+        [FN(y_true, y_predict), TP(y_true, y_predict)]
+    ])
+
+
+def precision_score(y_true, y_predict):
+    """精准率"""
+    tp = TP(y_true, y_predict)
+    fp = FP(y_true, y_predict)
+    return tp / (tp + fp)
+
+
+def recall_score(y_true, y_predict):
+    """召回率"""
+    tp = TP(y_true, y_predict)
+    fn = FN(y_true, y_predict)
+    return tp / (tp + fn)
