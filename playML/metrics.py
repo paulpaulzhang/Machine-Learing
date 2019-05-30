@@ -76,11 +76,27 @@ def precision_score(y_true, y_predict):
     """精准率"""
     tp = TP(y_true, y_predict)
     fp = FP(y_true, y_predict)
-    return tp / (tp + fp)
+    try:
+        return tp / (tp + fp)
+    except ZeroDivisionError:
+        return 0.0
 
 
 def recall_score(y_true, y_predict):
     """召回率"""
     tp = TP(y_true, y_predict)
     fn = FN(y_true, y_predict)
-    return tp / (tp + fn)
+    try:
+        return tp / (tp + fn)
+    except ZeroDivisionError:
+        return 0.0
+
+
+def f1_score(y_true, y_predict):
+    """F1 Score"""
+    precision = precision_score(y_true, y_predict)
+    recall = recall_score(y_true, y_predict)
+    try:
+        return 2 * precision * recall / (precision + recall)
+    except ZeroDivisionError:
+        return 0.0
